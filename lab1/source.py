@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 n1, m1, n2, m2, k, l = 0, 0, 0, 0, 0, 2
 print('Вас приветствует программа\n'
       'быстрого перемножения матриц методом Штрассена\n')
@@ -52,10 +54,10 @@ match k:
     case 2:
         for i in range(n1):
             for j in range(m1):
-                M1[i][j] = random.randint(0, 10)
+                M1[i][j] = random.randint(1, 10)
         for i in range(n2):
             for j in range(m2):
-                M2[i][j] = random.randint(0, 10)
+                M2[i][j] = random.randint(1, 10)
 
         print('\nМатрица 1\n')
         for i in range(n1):
@@ -283,11 +285,14 @@ for i in range(l):
 for i in range(l):
     x = 0
     for j in range(l):
-        if M5[i][j] != 0:
+        if M5[j][i] != 0:
             x += 1
             s = 100
     if x == 0 and i < s:
         s = i
+
+f = min(f, l // 2)
+s = min(s, l // 2)
 
 M6 = list()
 for i in range(f):
@@ -305,4 +310,6 @@ for i in range(f):
         print(M6[i][j], end=' ')
     print()
 
+print(np.matmul(np.matrix(M1), np.matrix(M2)))
+assert np.matrix(M6) == np.matmul(np.matrix(M1), np.matrix(M2))
 input('\n')
