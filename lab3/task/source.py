@@ -6,9 +6,14 @@ SIZE = 16
 INF = np.inf
 
 points = [
-    "msk_AP", "msk_TS", "msk_WH", "mzh_TS",
-    "mzh_WH", "zvn_WH", "NN_AP", "NN_TS", "NN_WH", "dzr_TS", "dzr_WH",
-    "vlg_AP", "vlg_TS", "vlg_WH", "kam_TS", "kam_WH"]
+    "msk_AP", "msk_TS", "msk_WH",
+    "mzh_TS", "mzh_WH",
+    "zvn_WH",
+    "NN_AP", "NN_TS", "NN_WH",
+    "dzr_TS", "dzr_WH",
+    "vlg_AP", "vlg_TS", "vlg_WH",
+    "kam_TS", "kam_WH",
+]
 
 towns = {
     "Moscow": 2,
@@ -158,8 +163,8 @@ class Track:
         self._volume = volume
         if vehicles is not None:
             for vehicle in vehicles:
-                self._cost += vehicle.sum_cost(volume, vehicle.distance)
-                self._time += vehicle.sum_time(vehicle.distance)
+                self._cost += vehicle.sum_cost(volume)
+                self._time += vehicle.sum_time()
 
     @property
     def cost(self) -> float:
@@ -184,10 +189,7 @@ class Order:
 
     @staticmethod
     def decr(town_name: str) -> int:
-        for town, weight in towns:
-            if town_name == town:
-                return weight
-        return -1
+        return towns[town_name]
 
     @staticmethod
     def matrix_upd(type: Type) -> np.matrix:
@@ -233,12 +235,12 @@ class Order:
 
     @classmethod
     def optim(cls, matrix: np.matrix, start: int, finish: int) -> np.darray:
-        d = [inf_val := np.inf] * SIZE
+        d = [INF] * SIZE
         v = [1] * SIZE
         d[begin_index := start] = 0
 
         min_index = cls.x(d, v, matrix)
-        while min_index < inf_val:
+        while min_index < INF:
             min_index = cls.x(d, v, matrix)
 
         weight = d[end := finish]
