@@ -164,7 +164,7 @@ class Track:
         if vehicles is not None:
             for vehicle in vehicles:
                 self._cost += vehicle.sum_cost(volume)
-                self._time += vehicle.sum_time()
+                self._time += vehicle.time()
 
     @property
     def cost(self) -> float:

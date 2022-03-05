@@ -31,32 +31,27 @@ class Urgency(Enum):
 
 @dataclass
 class Transportation:
-    speed: int
-    capacity: int
-    price: float
-    distance: int
-
-    @property
-    def sum_time(self) -> float:
-        return self.distance / self.speed
+    _capacity: int
+    _price_per_capacity: float
+    time: float
 
     def sum_cost(self, volume: int) -> float:
-        return (volume / self.capacity) * self.sum_time * self.price
+        return (volume / self._capacity) * self.time * self._price_per_capacity
 
 
 class PlaneTransportation(Transportation):
-    def __init__(self, distance: int):
-        super().__init__(500, 300, 100., distance)
+    def __init__(self, time: float):
+        super().__init__(300, 100., time)
 
 
 class TrainTransportation(Transportation):
-    def __init__(self, distance: int):
-        super().__init__(200, 100, 500, distance)
+    def __init__(self, time: float):
+        super().__init__(100, 500, time)
 
 
 class CarTransportation(Transportation):
-    def __init__(self, distance: int):
-        super().__init__(100, 60, 50., distance)
+    def __init__(self, time: float):
+        super().__init__(60, 50., time)
 
 
 @dataclass
@@ -70,7 +65,7 @@ class Track:
 
     @property
     def time(self):
-        return sum(tr.sum_time for tr in self.transportations)
+        return sum(tr.time for tr in self.transportations)
 
 
 @dataclass(frozen=True)

@@ -1,31 +1,32 @@
 from __future__ import annotations
 
 from lab3.src.model import *
-import adapters
+from lab3.src.adapters.repository import *
+import computer
 
 
 class TrackFactory:
     """Factory for Track from Places"""
 
-    def __init__(self, computer: adapters.AbstractComputer):
-        self.distance = computer
+    def __init__(self, comp: computer.AbstractComputer):
+        self.way_computer = comp
 
     def make(self, places: list[Place], volume: int) -> Track:
         receipt_places = iter(places[:-1])
         delivery_places = iter(places[1:])
         result = []
         for _ in range(len(places) - 1):
-            distance = self.distance.direct(
+            time = self.way_computer.direct(
                 receipt_from := next(receipt_places),
                 delivery_to := next(delivery_places)
             )
             match receipt_from.type, delivery_to.type:
                 case PlaceType.Airport, PlaceType.Airport:
-                    transportation = PlaneTransportation(distance)
+                    transportation = PlaneTransportation(time)
                 case PlaceType.TrainStation, PlaceType.TrainStation:
-                    transportation = TrainTransportation(distance)
+                    transportation = TrainTransportation(time)
                 case _:
-                    transportation = CarTransportation(distance)
+                    transportation = CarTransportation(time)
             result.append(transportation)
         return Track(result, volume)
 
@@ -35,12 +36,12 @@ class DeliveryService:
 
     def __init__(
             self,
-            repository: adapters.AbstractRepository,
-            computer: adapters.AbstractComputer,
+            repository: AbstractRepository,
+            comp: computer.AbstractComputer,
     ):
         self.places = repository
-        self.distance = computer
-        self.track_factory = TrackFactory(self.distance)
+        self.way_computer = comp
+        self.track_factory = TrackFactory(self.way_computer)
 
     def calculate_order(self, start_town: str, finish_town: str, volume: int, urgency: Urgency) -> Order:
         [from_town] = self.places.get_by_town(start_town).town,
@@ -49,7 +50,7 @@ class DeliveryService:
             raise ValueError()
 
         track = self.track_factory.make(
-            places=self.distance.faster(from_town, to_town, urgency),
+            places=self.way_computer.fastest(from_town, to_town, urgency),
             volume=volume
         )
         return Order(
@@ -61,6 +62,8 @@ class DeliveryService:
         )
 
 
-service = DeliveryService(adapters.InMemoryRepository(), adapters.LocalComputer())
-order = service.calculate_order('Moscow', 'Nizhniy Novgorod', 100, Urgency.turbo)
+service = DeliveryService(InMemoryRepository(), computer.LocalComputer())
+order = service.calculate_order('Moscow', 'NN', 100, Urgency.turbo)
 print(order)
+print(order.track)
+
